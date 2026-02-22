@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEATLABS™ DATABROKER ATLAS — Know Who Has Your Data</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #090a0e;
+  --surface: #0f1117;
+  --surface2: #161b24;
+  --surface3: #1c2333;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --text: #e2e8f0;
+  --muted: rgba(226,232,240,0.45);
+  --dim: rgba(226,232,240,0.22);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.10);
+  --red-glow: rgba(239,68,68,0.22);
+  --amber: #f0a500;
+  --amber-dim: rgba(240,165,0,0.10);
+  --teal: #06b6d4;
+  --teal-dim: rgba(6,182,212,0.10);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.10);
+  --yellow: #eab308;
+  --yellow-dim: rgba(234,179,8,0.10);
+  --orange: #f97316;
+  --purple: #a855f7;
+  --slate: #64748b;
+}
+
+html[data-theme="light"] {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --surface3: #f1f5f9;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.12);
+  --text: #0f172a;
+  --muted: rgba(15,23,42,0.55);
+  --dim: rgba(15,23,42,0.30);
+  --red: #dc2626;
+  --red-dim: rgba(220,38,38,0.07);
+  --amber: #b45309;
+  --teal: #0891b2;
+  --green: #16a34a;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* COORDINATE GRID BG */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(239,68,68,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239,68,68,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+html[data-theme="light"] body::before {
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+}
+
+/* RADIAL DANGER GLOW */
+body::after {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(239,68,68,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; }
+
+/* ═══ HEADER ═══ */
+header {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(239,68,68,0.04) 0%, transparent 100%);
+}
+
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 40px 28px;
+}
+
+.header-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-badge {
+  background: var(--red-dim);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.brand-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ctrl-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ctrl-btn:hover { border-color: var(--teal); color: var(--teal); }
+.ctrl-btn.active { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+
+.header-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1.5px;
+  margin-bottom: 14px;
+}
+
+h1 .highlight { color: var(--red); }
+h1 .sub-highlight { color: var(--amber); }
+
+.hero-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 600px;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 2px;
+  background: var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.stat-cell {
+  background: var(--surface);
+  padding: 16px 22px;
+  text-align: center;
+  min-width: 90px;
+}
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ═══ MAIN LAYOUT ═══ */
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 40px 40px;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.panel-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Search */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 9px 12px;
+  margin-bottom: 4px;
+}
+
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  width: 100%;
+}
+
+.search-box input::placeholder { color: var(--dim); }
+.search-icon { color: var(--dim); font-size: 13px; flex-shrink: 0; }
+
+/* Category filters */
+.cat-list { display: flex; flex-direction: column; gap: 4px; }
+
+.cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.cat-btn:hover { background: var(--surface2); border-color: var(--border); color: var(--text); }
+.cat-btn.active { background: var(--red-dim); border-color: rgba(239,68,68,0.3); color: var(--red); }
+.cat-btn.all.active { background: var(--amber-dim); border-color: rgba(240,165,0,0.3); color: var(--amber); }
+
+.cat-icon { font-size: 14px; flex-shrink: 0; }
+.cat-count { margin-left: auto; background: var(--surface3); padding: 2px 7px; border-radius: 20px; font-size: 9px; font-weight: 700; }
+
+/* Difficulty filters */
+.diff-list { display: flex; flex-direction: column; gap: 4px; }
+
+.diff-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.diff-btn:hover { background: var(--surface2); border-color: var(--border); color: var(--text); }
+.diff-btn.active { background: var(--surface2); border-color: var(--border2); color: var(--text); }
+
+.diff-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Progress tracker */
+.progress-section {}
+
+.progress-bar-wrap {
+  background: var(--surface2);
+  border-radius: 99px;
+  height: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--teal));
+  border-radius: 99px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+.progress-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.progress-label span { color: var(--green); font-weight: 700; }
+
+.done-list { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; }
+.done-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--green);
+  padding: 4px 6px;
+  background: var(--green-dim);
+  border-radius: 4px;
+}
+
+.done-empty {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--dim);
+  text-align: center;
+  padding: 12px;
+}
+
+.export-btn {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  padding: 9px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 10px;
+}
+
+.export-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* ═══ CONTENT AREA ═══ */
+.content {}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.results-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.results-label strong { color: var(--text); }
+
+.toolbar-right { display: flex; gap: 8px; align-items: center; }
+
+.sort-select {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Category section headers */
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  margin-top: 28px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-header:first-of-type { margin-top: 0; }
+
+.cat-header-icon { font-size: 20px; }
+
+.cat-header-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.cat-header-desc {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+  text-align: right;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.cat-header-count {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Broker Grid */
+.broker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+/* Broker Card */
+.broker-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.broker-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+}
+
+.broker-card.is-done {
+  border-color: rgba(34,197,94,0.3);
+  opacity: 0.75;
+}
+
+.broker-card.is-done::after {
+  content: '✓ OPTED OUT';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--green-dim);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--green);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.card-top {
+  padding: 16px 16px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.broker-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.broker-info { flex: 1; min-width: 0; }
+
+.broker-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.broker-type {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.risk-badge {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.risk-dots {
+  display: flex;
+  gap: 3px;
+}
+
+.risk-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border2);
+  transition: background 0.2s;
+}
+
+.risk-1 .risk-dot:nth-child(1) { background: var(--green); }
+.risk-2 .risk-dot:nth-child(-n+2) { background: var(--yellow); }
+.risk-3 .risk-dot:nth-child(-n+3) { background: var(--orange); }
+.risk-4 .risk-dot:nth-child(-n+4) { background: var(--red); }
+.risk-5 .risk-dot { background: var(--red); }
+
+.risk-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* Card body */
+.card-body {
+  padding: 0 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.broker-desc {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.data-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.data-chip {
+  padding: 2px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--dim);
+  letter-spacing: 0.3px;
+}
+
+.sells-to {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+
+.sells-to span { color: var(--muted); }
+
+/* Card meta row */
+.card-meta {
+  padding: 10px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.meta-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Difficulty colors */
+.diff-easy { color: var(--green); }
+.diff-medium { color: var(--yellow); }
+.diff-hard { color: var(--orange); }
+.diff-very-hard { color: var(--red); }
+
+/* Card actions */
+.card-actions {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.opt-out-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: var(--red-dim);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: 8px;
+  color: var(--red);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.opt-out-btn:hover {
+  background: rgba(239,68,68,0.2);
+  border-color: rgba(239,68,68,0.5);
+  transform: translateY(-1px);
+}
+
+.done-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--dim);
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.done-btn:hover { border-color: var(--green); color: var(--green); }
+.done-btn.marked { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+
+/* Method icon */
+.method-icon { font-size: 11px; }
+
+/* No results */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--dim);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.no-results-icon { font-size: 40px; margin-bottom: 16px; }
+
+/* Important alert bar */
+.alert-bar {
+  background: linear-gradient(90deg, rgba(239,68,68,0.08), rgba(240,165,0,0.06));
+  border: 1px solid rgba(239,68,68,0.2);
+  border-left: 3px solid var(--red);
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+.alert-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.alert-text strong { color: var(--red); }
+
+/* NEATLABS banner */
+.neatlabs-banner {
+  background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
+  border-top: 1px solid rgba(240,165,0,0.2);
+  position: relative;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.neatlabs-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(240,165,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,165,0,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.banner-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.banner-text {}
+
+.banner-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 6px;
+}
+
+.banner-headline {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+}
+
+.banner-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.7;
+  max-width: 500px;
+}
+
+.banner-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.banner-chip {
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.5px;
+}
+
+.banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  background: var(--amber);
+  color: #080b0f;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.banner-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(240,165,0,0.3); }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.footer-disclaimer {
+  background: var(--surface);
+  border: 1px solid rgba(239,68,68,0.15);
+  border-left: 3px solid var(--red);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+
+.footer-disclaimer strong { color: var(--red); }
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.footer-brand {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.footer-brand span { color: var(--amber); }
+
+.footer-copy {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--dim);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.25s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .main { grid-template-columns: 1fr; padding: 20px; }
+  .sidebar { position: static; }
+  .header-hero { grid-template-columns: 1fr; }
+  .stats-grid { width: fit-content; }
+  header .header-inner { padding: 20px; }
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.broker-card { animation: fadeIn 0.3s ease both; }
+
+/* Category accent lines */
+.cat-people .broker-avatar { color: var(--red); border-color: rgba(239,68,68,0.25); }
+.cat-marketing .broker-avatar { color: var(--purple); border-color: rgba(168,85,247,0.25); }
+.cat-financial .broker-avatar { color: var(--yellow); border-color: rgba(234,179,8,0.25); }
+.cat-background .broker-avatar { color: var(--orange); border-color: rgba(249,115,22,0.25); }
+.cat-aggregator .broker-avatar { color: var(--teal); border-color: rgba(6,182,212,0.25); }
+
+/* Priority badge */
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.priority-critical { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.priority-high { background: rgba(249,115,22,0.12); color: var(--orange); border: 1px solid rgba(249,115,22,0.25); }
+.priority-medium { background: rgba(234,179,8,0.12); color: var(--yellow); border: 1px solid rgba(234,179,8,0.25); }
+.priority-low { background: rgba(34,197,94,0.10); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+
+/* parent owns chips */
+.parent-chip {
+  display: inline-block;
+  padding: 2px 7px;
+  background: rgba(6,182,212,0.08);
+  border: 1px solid rgba(6,182,212,0.2);
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: var(--teal);
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-top-bar">
+      <div class="brand-row">
+        <div class="brand-badge">⚠ Threat to Privacy</div>
+        <span class="brand-name">NEATLABS™ DATABROKER ATLAS</span>
+      </div>
+      <div class="header-controls">
+        <button class="ctrl-btn" id="themeBtn" onclick="toggleTheme()">☀️ Light Mode</button>
+        <button class="ctrl-btn" onclick="scrollToStartHere()">🎯 Start Here</button>
+      </div>
+    </div>
+
+    <div class="header-hero">
+      <div>
+        <h1>Know Who Has<br><span class="highlight">Your Data.</span><br><span class="sub-highlight">Take It Back.</span></h1>
+        <p class="hero-sub">Over 4,000 data brokers operate in the U.S., harvesting your name, address, phone, financials, relatives, and behavioral profiles — then selling them to anyone with a credit card. This atlas maps the most dangerous ones, what they know about you, and exactly how to opt out.</p>
+      </div>
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-cell">
+          <div class="stat-num" id="statTotal" style="color:var(--red);">35</div>
+          <div class="stat-label">Brokers Mapped</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num" style="color:var(--amber);">5</div>
+          <div class="stat-label">Categories</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num" id="statDone" style="color:var(--green);">0</div>
+          <div class="stat-label">Opted Out</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num" id="statRemaining" style="color:var(--muted);">35</div>
+          <div class="stat-label">Remaining</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- Search -->
+    <div class="panel">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search brokers..." oninput="renderBrokers()">
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="panel">
+      <div class="panel-title">Filter by Category</div>
+      <div class="cat-list">
+        <button class="cat-btn all active" onclick="setCategory('all', this)">
+          <span class="cat-icon">🗺️</span> All Categories
+          <span class="cat-count" id="countAll"></span>
+        </button>
+        <button class="cat-btn" onclick="setCategory('people', this)">
+          <span class="cat-icon">👤</span> People Search
+          <span class="cat-count" id="countPeople"></span>
+        </button>
+        <button class="cat-btn" onclick="setCategory('marketing', this)">
+          <span class="cat-icon">📣</span> Marketing Data
+          <span class="cat-count" id="countMarketing"></span>
+        </button>
+        <button class="cat-btn" onclick="setCategory('financial', this)">
+          <span class="cat-icon">💳</span> Financial & Credit
+          <span class="cat-count" id="countFinancial"></span>
+        </button>
+        <button class="cat-btn" onclick="setCategory('background', this)">
+          <span class="cat-icon">🔎</span> Background Check
+          <span class="cat-count" id="countBackground"></span>
+        </button>
+        <button class="cat-btn" onclick="setCategory('aggregator', this)">
+          <span class="cat-icon">🕸️</span> Data Aggregators
+          <span class="cat-count" id="countAggregator"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Difficulty Filter -->
+    <div class="panel">
+      <div class="panel-title">Opt-Out Difficulty</div>
+      <div class="diff-list">
+        <button class="diff-btn active" onclick="setDifficulty('all', this)">
+          <span class="diff-dot" style="background:var(--border2)"></span> All Difficulties
+        </button>
+        <button class="diff-btn" onclick="setDifficulty('Easy', this)">
+          <span class="diff-dot" style="background:var(--green)"></span> Easy
+        </button>
+        <button class="diff-btn" onclick="setDifficulty('Medium', this)">
+          <span class="diff-dot" style="background:var(--yellow)"></span> Medium
+        </button>
+        <button class="diff-btn" onclick="setDifficulty('Hard', this)">
+          <span class="diff-dot" style="background:var(--orange)"></span> Hard
+        </button>
+        <button class="diff-btn" onclick="setDifficulty('Very Hard', this)">
+          <span class="diff-dot" style="background:var(--red)"></span> Very Hard
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="panel">
+      <div class="panel-title">My Opt-Out Progress</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-label"><span id="progressText">0</span> of <span id="progressTotal">35</span> complete</div>
+      <div class="done-list" id="doneList">
+        <div class="done-empty">Click ✓ on any card to track your progress</div>
+      </div>
+      <button class="export-btn" onclick="exportProgress()">📤 Export Progress Report</button>
+    </div>
+
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content" id="mainContent">
+
+    <!-- Alert bar -->
+    <div class="alert-bar" id="startHere">
+      <span class="alert-icon">⚡</span>
+      <div class="alert-text">
+        <strong>START HERE: Priority Order.</strong> Begin with People Search brokers — they're the most visible and feed data to hundreds of smaller sites. One opt-out at <strong>PeopleConnect</strong> removes you from 15+ sites simultaneously. Then tackle marketing brokers. Financial/credit brokers are hardest but highest impact. <strong>Opt-outs are not permanent</strong> — data typically reappears within 3–6 months. Plan a quarterly review.
+      </div>
+    </div>
+
+    <div id="brokersContainer"></div>
+
+  </main>
+
+</div>
+
+<!-- NEATLABS BANNER -->
+<div class="neatlabs-banner">
+  <div class="banner-inner">
+    <div class="banner-text">
+      <div class="banner-eyebrow">🛰️ Built by NEATLABS™</div>
+      <div class="banner-headline">More Privacy Tools at NEATLABS.ai</div>
+      <div class="banner-sub">DATABROKER ATLAS is one of 200+ tools and resources built by NEATLABS™. Explore our full suite including Blast Radius (data broker exposure analysis), VANTAGE (expert intel discovery), CMMC compliance platforms, and professional cybersecurity consulting.</div>
+      <div class="banner-chips">
+        <span class="banner-chip">🔍 Blast Radius — Exposure Analysis</span>
+        <span class="banner-chip">🔭 VANTAGE — Intel Discovery</span>
+        <span class="banner-chip">📋 CMMC Compliance Tools</span>
+        <span class="banner-chip">🛡️ Privacy Engineering</span>
+        <span class="banner-chip">🏛️ Federal Consulting · SDVOSB</span>
+      </div>
+    </div>
+    <a class="banner-cta" href="https://neatlabs.ai" target="_blank" rel="noopener noreferrer">Visit NEATLABS.ai →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-disclaimer">
+    <strong>DISCLAIMER —</strong> NEATLABS™ DATABROKER ATLAS is provided by Security 360, LLC for informational and educational purposes only. Opt-out links are verified at time of publication but may change as companies update their privacy processes. <strong>We cannot guarantee all links remain current or that opt-out requests will be honored.</strong> Always verify the opt-out page URL before submitting personal information. Opt-out effectiveness varies by broker and jurisdiction. This tool is not legal advice. For comprehensive data removal, consider consulting a privacy attorney or a professional data removal service. Presence on this list does not imply any formal relationship with or endorsement of any listed company. NEATLABS™ is not affiliated with any of the companies listed.
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-brand">© 2025 <span>NEATLABS™ DATABROKER ATLAS</span> · Security 360, LLC · SDVOSB</div>
+    <div class="footer-copy">Free · No login · No tracking · neatlabs.ai</div>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+
+const CATEGORIES = {
+  people:     { label: 'People Search',      icon: '👤', color: 'var(--red)',    desc: 'Public-facing search sites that expose addresses, phones, relatives & more to anyone who searches your name.' },
+  marketing:  { label: 'Marketing Data',     icon: '📣', color: 'var(--purple)', desc: 'Build behavioral & demographic profiles sold to advertisers. Most consumers never know these records exist.' },
+  financial:  { label: 'Financial & Credit', icon: '💳', color: 'var(--yellow)', desc: 'Feed insurance scoring, loan underwriting & risk profiling. Hardest to opt out of — highest real-world impact.' },
+  background: { label: 'Background Check',   icon: '🔎', color: 'var(--orange)', desc: 'Employers, landlords & others use these to screen you. Inaccurate data here can cost you jobs and housing.' },
+  aggregator: { label: 'Data Aggregators',   icon: '🕸️', color: 'var(--teal)',   desc: 'The wholesale suppliers feeding hundreds of smaller sites. Opt-out here has the highest downstream impact.' },
+};
+
+// risk: 1=low...5=critical  |  priority: critical/high/medium/low
+const BROKERS = [
+  // ── PEOPLE SEARCH ──
+  {
+    id: 'whitepages', name: 'Whitepages', category: 'people', avatar: 'WP',
+    risk: 5, priority: 'critical', difficulty: 'Hard', method: '📞 Phone Call Required', removal: '24 hrs',
+    desc: 'One of the largest people-search databases in the U.S. with 200M+ records. Free profiles expose home addresses, phone numbers, relatives, and property records to anyone.',
+    collects: ['Home Address','Phone Numbers','Relatives','Property Records','Age & DOB','Criminal Records'],
+    sellsTo: 'Marketers, background checkers, anyone with a browser',
+    optOutUrl: 'https://www.whitepages.com/suppression-requests',
+    notes: 'Requires phone verification call. Must opt out separately for free AND premium listings.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'spokeo', name: 'Spokeo', category: 'people', avatar: 'SP',
+    risk: 4, priority: 'critical', difficulty: 'Easy', method: '✉️ Email Verify', removal: '48–72 hrs',
+    desc: 'Aggregates 12B+ personal records from 500+ data sources. Profiles include photos scraped from social media, job history, and neighborhood demographic data.',
+    collects: ['Social Media Profiles','Photos','Job History','Email Addresses','Phone Numbers','Neighborhood Demographics'],
+    sellsTo: 'Anyone — free tier available publicly',
+    optOutUrl: 'https://www.spokeo.com/optout',
+    notes: 'Find your profile URL, paste into opt-out form. Email verification required. Paid accounts may still show data.',
+    reappears: 'High',
+  },
+  {
+    id: 'beenverified', name: 'BeenVerified', category: 'people', avatar: 'BV',
+    risk: 4, priority: 'critical', difficulty: 'Easy', method: '✉️ Email Verify', removal: '24–48 hrs',
+    desc: 'Popular background check and people-search site. Also owns PeopleLooker, PeopleSmart, and several other search sites — one opt-out covers them all.',
+    collects: ['Criminal Records','Court Records','Financial Records','Property','Vehicle Records','Social Media'],
+    sellsTo: 'Individuals, landlords, employers',
+    optOutUrl: 'https://www.beenverified.com/app/optout/search',
+    notes: 'Also removes you from PeopleLooker, PeopleSmart. Only one opt-out per email address allowed.',
+    parentCovers: ['PeopleLooker','PeopleSmart'],
+    reappears: 'Moderate',
+  },
+  {
+    id: 'radaris', name: 'Radaris', category: 'people', avatar: 'RD',
+    risk: 4, priority: 'critical', difficulty: 'Medium', method: '🌐 Online Form', removal: '24–48 hrs',
+    desc: 'Aggregates and sells extremely detailed profiles including social media activity, mentions, photos, and automatic alerts when new information about you is posted online.',
+    collects: ['Social Media Activity','Photos & Videos','News Mentions','Criminal Records','Property','Resumes'],
+    sellsTo: 'Anyone — enables real-time monitoring of individuals',
+    optOutUrl: 'https://radaris.com/page/how-to-remove',
+    notes: 'Click "Control Information" → "Manage Information" on your profile. May require email verification. Known to be unresponsive — persistence required.',
+    reappears: 'Very High',
+  },
+  {
+    id: 'mylife', name: 'MyLife', category: 'people', avatar: 'ML',
+    risk: 5, priority: 'critical', difficulty: 'Very Hard', method: '📧 Email Request', removal: '7–14 days',
+    desc: 'Displays a "Reputation Score" for individuals and shows arrest records, lawsuits, and social media profiles. Notoriously deceptive and resistant to opt-out.',
+    collects: ['Reputation Score','Arrest Records','Lawsuits','Social Profiles','Relatives','Financial History'],
+    sellsTo: 'Anyone who creates a free account',
+    optOutUrl: 'https://www.mylife.com/privacy/privacy-request-form',
+    notes: 'Email privacy@mylife.com with your name + profile URL. They may demand a phone call. Multiple attempts often needed. Known FTC complaint recipient.',
+    reappears: 'Very High',
+  },
+  {
+    id: 'intelius', name: 'Intelius', category: 'people', avatar: 'IN',
+    risk: 5, priority: 'critical', difficulty: 'Medium', method: '🌐 Online Form', removal: '72 hrs',
+    desc: 'Major people-search and background check site. Owned by PeopleConnect, which also owns TruthFinder, Instant Checkmate, US Search, and dozens more — one opt-out covers all.',
+    collects: ['Criminal Records','Address History','Phone Numbers','Relatives','Property','Financial Records'],
+    sellsTo: 'Individuals, businesses, landlords',
+    optOutUrl: 'https://suppression.peopleconnect.us/login',
+    notes: '⚡ USE THIS LINK — PeopleConnect Suppression Center removes from 15+ sites at once: Intelius, TruthFinder, Instant Checkmate, US Search, ZabaSearch, Classmates, AnyWho & more.',
+    parentCovers: ['TruthFinder','Instant Checkmate','US Search','ZabaSearch','AnyWho','Classmates'],
+    reappears: 'Low (covered by suppression)',
+  },
+  {
+    id: 'truthfinder', name: 'TruthFinder', category: 'people', avatar: 'TF',
+    risk: 4, priority: 'high', difficulty: 'Medium', method: '🌐 Online Form', removal: '48–72 hrs',
+    desc: 'Background check site owned by PeopleConnect. Offers detailed criminal history, social media, and financial reports. Covered by the PeopleConnect Suppression Center.',
+    collects: ['Criminal Records','Bankruptcy Records','Social Media','Financial Records','Property','Relatives'],
+    sellsTo: 'Individuals running informal background checks',
+    optOutUrl: 'https://suppression.peopleconnect.us/login',
+    notes: 'Use PeopleConnect Suppression Center — covers TruthFinder and 14 other sites simultaneously.',
+    parentCovers: ['Intelius','Instant Checkmate','US Search'],
+    reappears: 'Low',
+  },
+  {
+    id: 'peoplefinders', name: 'PeopleFinders', category: 'people', avatar: 'PF',
+    risk: 4, priority: 'high', difficulty: 'Medium', method: '🌐 Online Form', removal: '5–7 days',
+    desc: 'One of the oldest people-search sites with 250M+ records. May require ID verification for removal. Submitting here also removes data from several related sites.',
+    collects: ['Home Address','Phone Numbers','Criminal Records','Property','Relatives','Court Records'],
+    sellsTo: 'Individuals, background check services',
+    optOutUrl: 'https://www.peoplefinders.com/opt-out',
+    notes: 'Find your listing URL first, then submit. May require driver\'s license for removal. Also covers PublicRecordsNow if requested.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'fastpeoplesearch', name: 'FastPeopleSearch', category: 'people', avatar: 'FP',
+    risk: 3, priority: 'high', difficulty: 'Easy', method: '✉️ Email Verify', removal: '24 hrs',
+    desc: 'Free people-search site that displays full profiles without requiring payment. High Google ranking means your data here is highly visible in search results.',
+    collects: ['Home Address','Phone Numbers','Relatives','Age','Email Addresses'],
+    sellsTo: 'Anyone — completely free access',
+    optOutUrl: 'https://www.fastpeoplesearch.com/removal',
+    notes: 'Enter your profile URL and email. Click verification link. One of the easier opt-outs — do this one first.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'truepeoplesearch', name: 'TruePeopleSearch', category: 'people', avatar: 'TP',
+    risk: 3, priority: 'high', difficulty: 'Easy', method: '✉️ Email Verify', removal: '24 hrs',
+    desc: 'Free people-search site with no registration required. Ranks prominently in Google for name searches. Easy removal process makes this a quick early win.',
+    collects: ['Home Address','Phone Numbers','Relatives','Email Addresses','Age'],
+    sellsTo: 'Anyone — no login required',
+    optOutUrl: 'https://www.truepeoplesearch.com/removal',
+    notes: 'Search yourself, copy your profile URL, submit for removal. Email verification required. Fast processing.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'nuwber', name: 'Nuwber', category: 'people', avatar: 'NW',
+    risk: 3, priority: 'medium', difficulty: 'Easy', method: '✉️ Email Verify', removal: '24–48 hrs',
+    desc: 'People-search site providing contact info, addresses, and relatives. Data is freely accessible without payment, making it a common stalking and doxxing resource.',
+    collects: ['Phone Numbers','Home Address','Email Addresses','Relatives','Age'],
+    sellsTo: 'Anyone — free public access',
+    optOutUrl: 'https://nuwber.com/removal/link',
+    notes: 'Paste your profile page URL and email address into the removal form. Email verification link required.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'peekyou', name: 'PeekYou', category: 'people', avatar: 'PY',
+    risk: 3, priority: 'medium', difficulty: 'Easy', method: '🌐 Online Form', removal: '24–72 hrs',
+    desc: 'Aggregates social media profiles and web mentions into a single searchable profile. Also indexes blog posts, news articles, and forum activity under your name.',
+    collects: ['Social Media Profiles','Blog Posts','Web Mentions','Forum Activity','Contact Info'],
+    sellsTo: 'Anyone — free search; also powers other aggregator sites',
+    optOutUrl: 'https://www.peekyou.com/about/contact/optout/',
+    notes: 'Find your profile. Note the ID number at the end of the URL. Enter it in the opt-out form. Check "Remove my entire listing."',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'thatsthem', name: 'ThatsThem', category: 'people', avatar: 'TT',
+    risk: 3, priority: 'medium', difficulty: 'Easy', method: '✉️ Email Verify', removal: '24–48 hrs',
+    desc: 'Free people-search with reverse phone lookup, email lookup, and IP geolocation. Displays unusually detailed location data and cross-referenced contact information.',
+    collects: ['Home Address','Phone Numbers','Email Addresses','IP Geolocation','Relatives'],
+    sellsTo: 'Anyone — fully free service',
+    optOutUrl: 'https://thatsthem.com/optout',
+    notes: 'Find your listing, submit the profile URL. Email verification required. Straightforward process.',
+    reappears: 'Low',
+  },
+  {
+    id: 'familytreenow', name: 'FamilyTreeNow', category: 'people', avatar: 'FT',
+    risk: 4, priority: 'high', difficulty: 'Easy', method: '✉️ Email Verify', removal: '24 hrs',
+    desc: 'Free genealogy-style people-search that displays full family trees — including children and relatives. Particularly dangerous for those with stalking or domestic violence concerns.',
+    collects: ['Full Family Tree','Home Address','Age','Relatives Names','Historical Addresses','Phone Numbers'],
+    sellsTo: 'Anyone — free access, no account needed',
+    optOutUrl: 'https://www.familytreenow.com/optout',
+    notes: 'Search your name, select your record, submit opt-out. Email verification. Prioritize this if you have children — it lists them by name.',
+    reappears: 'Moderate',
+  },
+
+  // ── MARKETING DATA ──
+  {
+    id: 'acxiom', name: 'Acxiom', category: 'marketing', avatar: 'AX',
+    risk: 5, priority: 'critical', difficulty: 'Medium', method: '🌐 Online Portal', removal: '30–45 days',
+    desc: 'One of the world\'s largest data brokers. Holds 10,000+ data points per person including purchase history, lifestyle segments, financial estimates, and predictive behavioral scores.',
+    collects: ['Purchase History','Lifestyle Segments','Financial Estimates','Behavioral Scores','Demographics','Location Data'],
+    sellsTo: 'Fortune 500 companies, insurers, lenders, political campaigns',
+    optOutUrl: 'https://isapps.acxiom.com/optout/optout.aspx',
+    notes: 'This is the U.S. consumer opt-out portal. Can also call (877) 774-2094. Removing from Acxiom impacts many downstream buyers of your data.',
+    reappears: 'High',
+  },
+  {
+    id: 'epsilon', name: 'Epsilon (Conversant)', category: 'marketing', avatar: 'EP',
+    risk: 4, priority: 'high', difficulty: 'Medium', method: '🌐 Online Form', removal: '30 days',
+    desc: 'Global data and marketing company building behavioral profiles for targeted advertising. Matches online and offline behavior to create cross-channel consumer identity graphs.',
+    collects: ['Purchase History','Online Behavior','Loyalty Program Data','Email Engagement','Demographics','Location'],
+    sellsTo: 'Retailers, financial institutions, automotive, travel industries',
+    optOutUrl: 'https://www.epsilon.com/us/privacy-policy/consumer-privacy-request',
+    notes: 'Select "Do Not Sell My Personal Information" in the request form. Also operates under Conversant brand.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'zoominfo', name: 'ZoomInfo', category: 'marketing', avatar: 'ZI',
+    risk: 4, priority: 'high', difficulty: 'Easy', method: '🌐 Online Portal', removal: '14 days',
+    desc: 'Business intelligence platform with 100M+ professional profiles. Used for B2B sales targeting. Collects job titles, direct phone numbers, business email, and company data without consent.',
+    collects: ['Job Title & History','Direct Phone Numbers','Business Email','LinkedIn Activity','Company Data','Intent Signals'],
+    sellsTo: 'B2B sales teams, recruiters, marketers',
+    optOutUrl: 'https://www.zoominfo.com/about-zoominfo/privacy-manage-profile',
+    notes: 'Scroll to footer → "Your Privacy" → "Request Removal." Confirm with email code. Critical for business professionals concerned about unsolicited sales outreach.',
+    reappears: 'High',
+  },
+  {
+    id: 'clearbit', name: 'Clearbit (HubSpot)', category: 'marketing', avatar: 'CB',
+    risk: 3, priority: 'medium', difficulty: 'Easy', method: '🌐 Online Form', removal: '30 days',
+    desc: 'B2B data enrichment platform acquired by HubSpot. Automatically fills in contact records when companies look you up — even if you never gave them your information.',
+    collects: ['Professional Email','Job Title','LinkedIn URL','Company Data','Tech Stack Used','Location'],
+    sellsTo: 'Marketing and sales teams across thousands of companies',
+    optOutUrl: 'https://clearbit.com/privacy/request',
+    notes: 'Submit a data deletion request via their privacy portal. Identity verification required. GDPR/CCPA rights apply.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'datalogix', name: 'Oracle Data Cloud', category: 'marketing', avatar: 'OD',
+    risk: 4, priority: 'high', difficulty: 'Medium', method: '🌐 Privacy Portal', removal: '30–60 days',
+    desc: 'Formerly Datalogix — Oracle\'s marketing data cloud links your offline purchase history to your online identity for ad targeting. Operates the BlueKai data marketplace.',
+    collects: ['Purchase History','Offline Retail Data','Online Behavior','Audience Segments','Device IDs','Location History'],
+    sellsTo: 'Advertisers, media buyers, agencies',
+    optOutUrl: 'https://www.oracle.com/legal/privacy/marketing-cloud-data-cloud-privacy-policy.html',
+    notes: 'Navigate to Privacy Choices on Oracle\'s marketing cloud page. Complex process — persistence required. Also opt out via BlueKai opt-out page.',
+    reappears: 'High',
+  },
+  {
+    id: 'liveramp', name: 'LiveRamp', category: 'marketing', avatar: 'LR',
+    risk: 4, priority: 'high', difficulty: 'Medium', method: '🌐 Online Form', removal: '30 days',
+    desc: 'Data connectivity platform that matches your identity across devices, channels, and third-party data sources. Powers "Authenticated Traffic Solution" used by thousands of publishers.',
+    collects: ['Cross-Device Identity','Email Hashes','Purchase Data','Behavioral Data','Offline Data Linking'],
+    sellsTo: 'Publishers, ad tech companies, TV networks, streaming services',
+    optOutUrl: 'https://liveramp.com/opt_out/',
+    notes: 'Opt out of both individual and household tracking. LiveRamp powers identity resolution for a huge portion of the ad ecosystem — this removal has broad downstream impact.',
+    reappears: 'Moderate',
+  },
+
+  // ── FINANCIAL & CREDIT ──
+  {
+    id: 'optoutprescreen', name: 'OptOutPrescreen.com', category: 'financial', avatar: 'OP',
+    risk: 3, priority: 'high', difficulty: 'Easy', method: '🌐 Official Portal', removal: 'Immediate',
+    desc: 'The OFFICIAL opt-out portal jointly operated by Equifax, Experian, TransUnion, and Innovis. Stops prescreened credit card and insurance offers — one form covers all four bureaus.',
+    collects: ['Credit Profile (for prescreened offers)'],
+    sellsTo: 'Banks, insurance companies, credit card companies',
+    optOutUrl: 'https://www.optoutprescreen.com/',
+    notes: '⚡ DO THIS FIRST among financial brokers. Online opt-out lasts 5 years. Mail-in form is permanent. Covers all four major credit bureaus for prescreened offers.',
+    reappears: 'Low (5-year opt-out, permanent via mail)',
+  },
+  {
+    id: 'lexisnexis', name: 'LexisNexis Risk Solutions', category: 'financial', avatar: 'LN',
+    risk: 5, priority: 'critical', difficulty: 'Hard', method: '🌐 Online + ID', removal: '30 days',
+    desc: 'Provides data to law enforcement, insurance companies, financial institutions, and government agencies. Your LexisNexis file influences insurance rates, fraud decisions, and background checks.',
+    collects: ['Public Records','Insurance Claims History','Property Data','Motor Vehicle Records','Court Records','Bankruptcy'],
+    sellsTo: 'Law enforcement, insurers, banks, government agencies',
+    optOutUrl: 'https://optout.lexisnexis.com/',
+    notes: 'May require SSN or driver\'s license for verification. In May 2025 they suffered a breach exposing 364K+ records. Call 1-888-497-0011 for support.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'equifax', name: 'Equifax', category: 'financial', avatar: 'EQ',
+    risk: 5, priority: 'critical', difficulty: 'Medium', method: '🌐 Online Portal', removal: '30 days',
+    desc: 'One of the three major credit bureaus. Beyond credit reporting, their marketing services sell consumer financial profiles. Suffered the 2017 breach exposing 147M Americans.',
+    collects: ['Credit History','Payment Records','Financial Accounts','Employment History','Address History','Public Records'],
+    sellsTo: 'Lenders, insurers, employers, marketers',
+    optOutUrl: 'https://www.equifax.com/personal/privacy/',
+    notes: 'Use their myPrivacy portal. Also strongly recommend placing a free credit freeze at all three bureaus — freeze is stronger than opt-out.',
+    reappears: 'High',
+  },
+  {
+    id: 'experian', name: 'Experian', category: 'financial', avatar: 'EX',
+    risk: 5, priority: 'critical', difficulty: 'Medium', method: '🌐 Privacy Center', removal: '30 days',
+    desc: 'Major credit bureau with separate opt-outs for direct mail, telemarketing, email targeting, and targeted online advertising. Each service requires a separate request.',
+    collects: ['Credit History','Financial Accounts','Consumer Behavior','Demographic Data','Purchase Data'],
+    sellsTo: 'Lenders, insurers, marketers, employers (FCRA-compliant)',
+    optOutUrl: 'https://www.experian.com/privacy/center.html',
+    notes: 'Must opt out of each channel separately: direct mail, telemarketing, email, online ads. Email optout@experian.com or mail to PO Box 703, Allen, TX 75013.',
+    reappears: 'High',
+  },
+  {
+    id: 'transunion', name: 'TransUnion', category: 'financial', avatar: 'TU',
+    risk: 5, priority: 'critical', difficulty: 'Medium', method: '🌐 Privacy Center', removal: '30 days',
+    desc: 'Third major credit bureau operating a large consumer data and analytics business beyond traditional credit reporting. Sells consumer segmentation data for insurance and marketing.',
+    collects: ['Credit History','Trended Credit Data','Insurance Risk Data','Demographic Profiles','Consumer Segmentation'],
+    sellsTo: 'Lenders, insurers, employers, marketers',
+    optOutUrl: 'https://www.transunion.com/legal/privacy-center',
+    notes: 'Use their Privacy Center to manage marketing opt-outs. Consider placing a credit freeze here too — it\'s free and more protective than opt-out.',
+    reappears: 'High',
+  },
+  {
+    id: 'corelogic', name: 'CoreLogic', category: 'financial', avatar: 'CL',
+    risk: 4, priority: 'high', difficulty: 'Hard', method: '🌐 Online Portal', removal: '30 days',
+    desc: 'Massive property and financial data company holding records on 136M+ real estate transactions. Used by lenders, insurers, and law enforcement for risk assessment.',
+    collects: ['Property Records','Mortgage History','Flood & Tax Data','Insurance Claims','Tenant Screening Data','Rental History'],
+    sellsTo: 'Lenders, insurers, property managers, law enforcement',
+    optOutUrl: 'https://optout.corelogic.com/',
+    notes: 'Can request data suppression from certain products. Primarily affects insurance underwriting. May require identity documentation.',
+    reappears: 'Moderate',
+  },
+  {
+    id: 'theworknumber', name: 'The Work Number (Equifax)', category: 'financial', avatar: 'WN',
+    risk: 4, priority: 'high', difficulty: 'Hard', method: '📞 Phone Required', removal: '30+ days',
+    desc: 'Equifax\'s employment and income verification service. Your employer sends payroll data here automatically. Used by lenders, landlords, and government agencies to verify income and employment.',
+    collects: ['Salary & Wage History','Employment Dates','Pay Frequency','Bonus & Commission Data','HR Records'],
+    sellsTo: 'Lenders, landlords, government agencies, background checkers',
+    optOutUrl: 'https://employees.theworknumber.com/',
+    notes: 'You can freeze or limit who accesses your employment data. Call 1-800-367-2884. Note: employers automatically share data here — opt-out limits who can retrieve it, not data submission.',
+    reappears: 'High (employer continues to contribute)',
+  },
+
+  // ── BACKGROUND CHECK ──
+  {
+    id: 'instantcheckmate', name: 'Instant Checkmate', category: 'background', avatar: 'IC',
+    risk: 4, priority: 'high', difficulty: 'Medium', method: '🌐 Online Form', removal: '48–72 hrs',
+    desc: 'Background check service owned by PeopleConnect, used by individuals to look up criminal records, addresses, and personal history. Covered by PeopleConnect Suppression Center.',
+    collects: ['Criminal Records','Address History','Phone Numbers','Relatives','Social Media','Court Records'],
+    sellsTo: 'Individuals, landlords, employers, dating app users',
+    optOutUrl: 'https://suppression.peopleconnect.us/login',
+    notes: 'Use PeopleConnect Suppression Center to remove from Instant Checkmate and 14+ other sites simultaneously.',
+    parentCovers: ['Intelius','TruthFinder','US Search'],
+    reappears: 'Low',
+  },
+  {
+    id: 'checkr', name: 'Checkr', category: 'background', avatar: 'CK',
+    risk: 4, priority: 'high', difficulty: 'Hard', method: '📧 Email Request', removal: '30 days',
+    desc: 'Leading employment background screening company. Used by Uber, Lyft, DoorDash, and thousands of employers. You may not know you were screened — or have errors affecting employment.',
+    collects: ['Criminal Records','Sex Offender Registry','Credit History (FCRA)','Motor Vehicle Records','Employment Verification'],
+    sellsTo: 'Employers only (FCRA-compliant)',
+    optOutUrl: 'https://checkr.com/privacy/data-request',
+    notes: 'Under FCRA, you have the right to request a copy of any report used against you. Email privacy@checkr.com. Dispute inaccurate records immediately as they affect employment.',
+    reappears: 'Low (employer-triggered pulls only)',
+  },
+  {
+    id: 'hireright', name: 'HireRight', category: 'background', avatar: 'HR',
+    risk: 4, priority: 'high', difficulty: 'Hard', method: '📧 Email + ID', removal: '30 days',
+    desc: 'Major employment screening company providing background checks to global employers. Under FCRA, you have rights to review and dispute any report they generate about you.',
+    collects: ['Criminal Records','Education Verification','Employment History','Professional Licenses','Drug Test Results'],
+    sellsTo: 'Employers worldwide (FCRA-compliant)',
+    optOutUrl: 'https://www.hireright.com/privacy/contact',
+    notes: 'Submit a FCRA consumer file request to review your report. Dispute errors in writing within 30 days of adverse action. Keep documentation of all correspondence.',
+    reappears: 'Low',
+  },
+  {
+    id: 'sterling', name: 'Sterling (RISQ Group)', category: 'background', avatar: 'ST',
+    risk: 3, priority: 'medium', difficulty: 'Hard', method: '🌐 Privacy Portal', removal: '30 days',
+    desc: 'Global background screening company used by major corporations. Primarily FCRA-compliant. Request your consumer file if you\'ve been screened — errors are common.',
+    collects: ['Criminal Records','Employment History','Education','Professional Credentials','Credit (FCRA)','Identity Verification'],
+    sellsTo: 'Corporate employers (FCRA-compliant)',
+    optOutUrl: 'https://www.sterlingcheck.com/privacy/privacy-request-center/',
+    notes: 'Submit consumer file request via their Privacy Request Center. Particularly important if you were denied a position — you have rights under FCRA to review and dispute.',
+    reappears: 'Low',
+  },
+
+  // ── DATA AGGREGATORS ──
+  {
+    id: 'peopleconnect', name: 'PeopleConnect Suppression Center', category: 'aggregator', avatar: 'PC',
+    risk: 5, priority: 'critical', difficulty: 'Easy', method: '✉️ Email Verify', removal: '72 hrs',
+    desc: '⚡ ONE OPT-OUT, 15+ SITES. PeopleConnect\'s unified suppression system removes you from Intelius, TruthFinder, Instant Checkmate, US Search, ZabaSearch, Classmates, AnyWho, and more simultaneously.',
+    collects: ['See individual site entries above'],
+    sellsTo: 'Individuals, landlords, employers',
+    optOutUrl: 'https://suppression.peopleconnect.us/login',
+    notes: 'THE highest-leverage opt-out available. Sites covered: Intelius, TruthFinder, Instant Checkmate, US Search, Classmates, ZabaSearch, AnyWho, Addresses.com, PublicRecords.com, PeopleLookup, DateCheck, LookUpAnyone, iSearch, PeopleFinder, AddressSearch.com.',
+    parentCovers: ['Intelius','TruthFinder','Instant Checkmate','US Search','ZabaSearch','AnyWho','Classmates'],
+    reappears: 'Low',
+  },
+  {
+    id: 'databrokerslist', name: 'NAI Opt-Out (Ad Networks)', category: 'aggregator', avatar: 'NA',
+    risk: 3, priority: 'medium', difficulty: 'Easy', method: '🌐 Browser-Based', removal: 'Immediate',
+    desc: 'The Network Advertising Initiative\'s opt-out tool lets you opt out of targeted advertising from 100+ member ad networks simultaneously, including Google, Amazon, and Meta ad networks.',
+    collects: ['Browsing History','Ad Interaction Data','Device IDs','Behavioral Segments'],
+    sellsTo: 'Advertisers across all major platforms',
+    optOutUrl: 'https://optout.networkadvertising.org/',
+    notes: 'Browser-based opt-out — must be done on each browser and device you use. Also use https://optout.aboutads.info/ for the DAA opt-out covering additional networks.',
+    reappears: 'High (cookie-based — clears if you clear cookies)',
+  },
+  {
+    id: 'dmachoice', name: 'DMAchoice (Direct Mail Opt-Out)', category: 'aggregator', avatar: 'DM',
+    risk: 2, priority: 'medium', difficulty: 'Easy', method: '🌐 Online Registration', removal: '90 days for mail to stop',
+    desc: 'The Direct Marketing Association\'s official opt-out registry for direct mail, catalogs, and telephone solicitation. Reduces physical junk mail, telemarketing, and email marketing from member companies.',
+    collects: ['Mailing Address (to opt out of mail)'],
+    sellsTo: 'Direct mailers, catalog companies, telemarketers',
+    optOutUrl: 'https://www.dmachoice.org/',
+    notes: 'Small registration fee (~$5). Covers mail, email, and phone from DMA member companies. Opt-out lasts 10 years. Also register on the FTC\'s Do Not Call Registry at donotcall.gov.',
+    reappears: 'Low',
+  },
+  {
+    id: 'innovis', name: 'Innovis (Fourth Credit Bureau)', category: 'aggregator', avatar: 'IV',
+    risk: 3, priority: 'medium', difficulty: 'Easy', method: '🌐 Online Form', removal: '30 days',
+    desc: 'Often called the "fourth credit bureau." Less well-known but used for prescreened credit and insurance offers. Their database is used by many lenders Equifax/Experian/TransUnion don\'t reach.',
+    collects: ['Credit History','Financial Accounts','Personal Identifying Info'],
+    sellsTo: 'Lenders, insurance companies',
+    optOutUrl: 'https://www.innovis.com/personal/optOut',
+    notes: 'Opt out of prescreened offers through their online form. Also request your free annual credit file to check for errors.',
+    reappears: 'Moderate',
+  },
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let currentCategory = 'all';
+let currentDifficulty = 'all';
+let doneSet = new Set(JSON.parse(localStorage.getItem('atlas-done') || '[]'));
+
+function saveState() {
+  localStorage.setItem('atlas-done', JSON.stringify([...doneSet]));
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════════
+function setCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBrokers();
+}
+
+function setDifficulty(diff, btn) {
+  currentDifficulty = diff;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBrokers();
+}
+
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  return BROKERS.filter(b => {
+    const catOk = currentCategory === 'all' || b.category === currentCategory;
+    const diffOk = currentDifficulty === 'all' || b.difficulty === currentDifficulty;
+    const qOk = !q || b.name.toLowerCase().includes(q) || b.desc.toLowerCase().includes(q) || b.collects.some(c => c.toLowerCase().includes(q)) || b.category.toLowerCase().includes(q);
+    return catOk && diffOk && qOk;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+function diffClass(d) {
+  if (d === 'Easy') return 'diff-easy';
+  if (d === 'Medium') return 'diff-medium';
+  if (d === 'Hard') return 'diff-hard';
+  return 'diff-very-hard';
+}
+
+function priorityClass(p) {
+  return `priority-${p}`;
+}
+
+function priorityLabel(p) {
+  const map = { critical: '🔴 Critical Priority', high: '🟠 High Priority', medium: '🟡 Medium Priority', low: '🟢 Low Priority' };
+  return map[p] || p;
+}
+
+function avatarColor(cat) {
+  const map = { people: '#ef4444', marketing: '#a855f7', financial: '#eab308', background: '#f97316', aggregator: '#06b6d4' };
+  return map[cat] || '#64748b';
+}
+
+function renderBrokers() {
+  const filtered = getFiltered();
+  const container = document.getElementById('brokersContainer');
+
+  // Update results label
+  document.getElementById('resultsLabel') && (document.getElementById('resultsLabel').innerHTML = `Showing <strong>${filtered.length}</strong> of ${BROKERS.length} brokers`);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="no-results"><div class="no-results-icon">🗺️</div><div>No brokers match your filters.</div></div>`;
+    return;
+  }
+
+  // Group by category
+  const grouped = {};
+  filtered.forEach(b => {
+    if (!grouped[b.category]) grouped[b.category] = [];
+    grouped[b.category].push(b);
+  });
+
+  const catOrder = ['people','marketing','financial','background','aggregator'];
+  let html = '';
+
+  catOrder.forEach(cat => {
+    if (!grouped[cat]) return;
+    const catInfo = CATEGORIES[cat];
+    html += `
+      <div class="category-section">
+        <div class="category-header">
+          <span class="cat-header-icon">${catInfo.icon}</span>
+          <span class="cat-header-title" style="color:${catInfo.color}">${catInfo.label}</span>
+          <span class="cat-header-count">${grouped[cat].length} broker${grouped[cat].length !== 1 ? 's' : ''}</span>
+          <span class="cat-header-desc">${catInfo.desc}</span>
+        </div>
+        <div class="broker-grid">
+          ${grouped[cat].map(b => brokerCard(b)).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  updateProgress();
+  updateCounts();
+}
+
+function brokerCard(b) {
+  const isDone = doneSet.has(b.id);
+  const color = avatarColor(b.category);
+  const chips = b.collects.slice(0, 5).map(c => `<span class="data-chip">${c}</span>`).join('');
+  const parentCoversHtml = b.parentCovers ? `<div class="parent-chip">Also removes: ${b.parentCovers.join(' · ')}</div>` : '';
+
+  return `
+    <div class="broker-card cat-${b.category} ${isDone ? 'is-done' : ''}" id="card-${b.id}" style="animation-delay:${Math.random()*0.1}s">
+      <div class="card-top">
+        <div class="broker-avatar" style="color:${color};border-color:${color}33;">${b.avatar}</div>
+        <div class="broker-info">
+          <div class="broker-name">${b.name}</div>
+          <div class="broker-type">${CATEGORIES[b.category].label}</div>
+          <div class="priority-badge ${priorityClass(b.priority)}">${priorityLabel(b.priority)}</div>
+        </div>
+        <div class="risk-badge">
+          <div class="risk-dots risk-${b.risk}">
+            <div class="risk-dot"></div><div class="risk-dot"></div><div class="risk-dot"></div><div class="risk-dot"></div><div class="risk-dot"></div>
+          </div>
+          <div class="risk-label">Risk Level</div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="broker-desc">${b.desc}</div>
+        <div class="data-chips">${chips}</div>
+        <div class="sells-to">Sold to: <span>${b.sellsTo}</span></div>
+        ${parentCoversHtml}
+      </div>
+
+      <div class="card-meta">
+        <div class="meta-item">
+          <div class="meta-key">Difficulty</div>
+          <div class="meta-val ${diffClass(b.difficulty)}">${b.difficulty}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-key">Method</div>
+          <div class="meta-val" style="color:var(--muted);font-size:10px;">${b.method}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-key">Removal Time</div>
+          <div class="meta-val" style="color:var(--muted)">${b.removal}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-key">Data Returns</div>
+          <div class="meta-val" style="color:var(--muted)">${b.reappears}</div>
+        </div>
+      </div>
+
+      ${b.notes ? `<div style="padding:8px 16px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--dim);line-height:1.6;border-bottom:1px solid var(--border);background:var(--surface2);">💬 ${b.notes}</div>` : ''}
+
+      <div class="card-actions">
+        <a class="opt-out-btn" href="${b.optOutUrl}" target="_blank" rel="noopener noreferrer">
+          🔓 Opt Out Now →
+        </a>
+        <button class="done-btn ${isDone ? 'marked' : ''}" onclick="toggleDone('${b.id}')" title="Mark as complete">
+          ${isDone ? '✓' : '○'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════════════════════
+function toggleDone(id) {
+  if (doneSet.has(id)) {
+    doneSet.delete(id);
+    showToast('Removed from completed list');
+  } else {
+    doneSet.add(id);
+    showToast('✓ Marked as opted out!');
+  }
+  saveState();
+  // update just the card
+  const card = document.getElementById('card-' + id);
+  if (card) {
+    card.classList.toggle('is-done', doneSet.has(id));
+    const btn = card.querySelector('.done-btn');
+    if (btn) {
+      btn.classList.toggle('marked', doneSet.has(id));
+      btn.textContent = doneSet.has(id) ? '✓' : '○';
+    }
+  }
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = BROKERS.length;
+  const done = doneSet.size;
+  const pct = total > 0 ? (done / total * 100) : 0;
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = done;
+  document.getElementById('progressTotal').textContent = total;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statRemaining').textContent = total - done;
+
+  const doneList = document.getElementById('doneList');
+  if (done === 0) {
+    doneList.innerHTML = '<div class="done-empty">Click ○ on any card to track your progress</div>';
+  } else {
+    const doneNames = [...doneSet].map(id => {
+      const b = BROKERS.find(x => x.id === id);
+      return b ? `<div class="done-item">✓ ${b.name}</div>` : '';
+    }).join('');
+    doneList.innerHTML = doneNames;
+  }
+}
+
+function updateCounts() {
+  const cats = ['people','marketing','financial','background','aggregator'];
+  document.getElementById('countAll').textContent = BROKERS.length;
+  cats.forEach(cat => {
+    const el = document.getElementById('count' + cat.charAt(0).toUpperCase() + cat.slice(1));
+    if (el) el.textContent = BROKERS.filter(b => b.category === cat).length;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════
+function exportProgress() {
+  const done = [...doneSet].map(id => BROKERS.find(b => b.id === id)).filter(Boolean);
+  const remaining = BROKERS.filter(b => !doneSet.has(b.id));
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  let txt = `NEATLABS™ DATABROKER ATLAS — Opt-Out Progress Report
+Generated: ${date}
+Tool: neatlabs.ai | DATABROKER ATLAS
+════════════════════════════════════════════════════════════════
+
+SUMMARY
+───────────────────────────────────────────────────────────────
+Total Brokers Tracked: ${BROKERS.length}
+Opted Out:             ${done.length}
+Remaining:             ${remaining.length}
+Completion:            ${Math.round(done.length / BROKERS.length * 100)}%
+
+IMPORTANT: Opt-outs are not permanent. Data typically reappears
+within 3–6 months. Schedule quarterly reviews.
+
+════════════════════════════════════════════════════════════════
+COMPLETED OPT-OUTS (${done.length})
+════════════════════════════════════════════════════════════════
+`;
+
+  done.forEach(b => {
+    txt += `
+✓ ${b.name} [${CATEGORIES[b.category].label}]
+  Difficulty: ${b.difficulty} | Removal: ${b.removal} | Data Returns: ${b.reappears}
+  Opt-Out URL: ${b.optOutUrl}
+`;
+  });
+
+  txt += `
+════════════════════════════════════════════════════════════════
+REMAINING BROKERS (${remaining.length})
+════════════════════════════════════════════════════════════════
+`;
+
+  // Sort by priority
+  const order = ['critical','high','medium','low'];
+  remaining.sort((a,b) => order.indexOf(a.priority) - order.indexOf(b.priority));
+
+  remaining.forEach(b => {
+    txt += `
+○ ${b.name} [${CATEGORIES[b.category].label}] — ${b.priority.toUpperCase()} PRIORITY
+  Difficulty: ${b.difficulty} | Method: ${b.method}
+  Opt-Out URL: ${b.optOutUrl}
+`;
+  });
+
+  txt += `
+════════════════════════════════════════════════════════════════
+DISCLAIMER
+This report is generated by NEATLABS™ DATABROKER ATLAS, a free
+tool by Security 360, LLC (SDVOSB). Links verified at publication.
+Always verify opt-out URLs before submitting personal information.
+More tools at neatlabs.ai
+════════════════════════════════════════════════════════════════`;
+
+  const blob = new Blob([txt], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `neatlabs-databroker-atlas-progress-${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 Progress report exported!');
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.getElementById('themeBtn');
+  if (html.getAttribute('data-theme') === 'light') {
+    html.setAttribute('data-theme', 'dark');
+    btn.textContent = '☀️ Light Mode';
+    localStorage.setItem('atlas-theme', 'dark');
+  } else {
+    html.setAttribute('data-theme', 'light');
+    btn.textContent = '🌙 Dark Mode';
+    localStorage.setItem('atlas-theme', 'light');
+  }
+}
+
+function scrollToStartHere() {
+  document.getElementById('startHere').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  const savedTheme = localStorage.getItem('atlas-theme');
+  if (savedTheme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('themeBtn').textContent = '🌙 Dark Mode';
+  }
+
+  updateCounts();
+  renderBrokers();
+}
+
+init();
+</script>
+</body>
+</html>
